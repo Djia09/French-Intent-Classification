@@ -123,43 +123,37 @@ def test(sentence, model, clf, thres, frequencies_dict=None):
         print('Predict label: ', clf.predict(vector.reshape(1, -1)))
     else:
         print('Probability below threshold=0.3')
-    return vector, y_pred_proba
+def main(input_path):
+    ### Import data and pre-trained model
+    df = pd.read_csv(input_path, sep=';', names=['sentence', 'label'])
 
-### Import data and pre-trained model
-df = pd.read_csv('./Dialogflow_crash/PhrasesEntrainementIWS-FR_full_annotes.csv', sep=';', names=['sentence', 'label'])
+    stop_words = set(stopwords.words('french'))
+    stop_words.update(['a', 'les', 'oui', 'non', 'merci', 'ok', 'bonjour', 'donc'])
+    model = KeyedVectors.load_word2vec_format("./Clustering_Python/Model/frWac_non_lem_no_postag_no_phrase_200_cbow_cut100.bin", binary=True)
 
-stop_words = set(stopwords.words('french'))
-stop_words.update(['a', 'les', 'oui', 'non', 'merci', 'ok', 'bonjour', 'donc'])
-model = KeyedVectors.load_word2vec_format("./Clustering_Python/Model/frWac_non_lem_no_postag_no_phrase_200_cbow_cut100.bin", binary=True)
+    ### Cleaning data
+    clean_text = cleaning_text(list(df.sentence))
+    filtered_text = remove_stopwords(clean_text) #filtered_text = tokenized sentences
+    with open('./wordFrequencies.json', 'r', encoding='utf-8') as f:
+        word_frequencies = json.load(f)
 
-### Cleaning data
-clean_text = cleaning_text(list(df.sentence))
-filtered_text = remove_stopwords(clean_text) #filtered_text = tokenized sentences
-with open('./DialogFlow_crash/wordFrequencies.json', 'r', encoding='utf-8') as f:
-    word_frequencies = json.load(f)
+    ### Sentence vectorisation
+    X, index = vectorize(filtered_text, model, len(model['a'])) #filtered_text
+    y = list(df.label[index])
 
-### Sentence vectorisation
-X, index = vectorize(filtered_text, model, len(model['a'])) #filtered_text
-y = list(df.label[index])
+    ### SVM Classification
+    clf = svm_classification(X, y)
 
-### SVM Classification
-clf = svm_classification(X, y)
+    ### Prediction on sentence test
+    sent1 = "J'ai besoin d'un service de nettoyage"
+    sent2 = "J'ai besoin de nettoyer mes vêtements"
+    sent3 = "J'ai besoin de repasser ma chemise"
+    sent4 = "J'ai besoin de garder mes enfants"
 
-### Prediction on sentence test
-sent1 = "J'ai besoin d'un service de nettoyage"
-sent2 = "J'ai besoin de nettoyer mes vêtements"
-sent3 = "J'ai besoin de repasser ma chemise"
-sent4 = "J'ai besoin de garder mes enfants"
+    test(sent1, model, clf, 0.3)
+    test(sent2, model, clf, 0.3)
+    test(sent3, model, clf, 0.3)
+    test(sent4, model, clf, 0.3)
 
-vec1, _ = test(sent1, model, clf, 0.3)
-vec2, _ = test(sent2, model, clf, 0.3)
-vec3, _ = test(sent3, model, clf, 0.3)
-vec4, _ = test(sent4, model, clf, 0.3)
-
-#Standard deviation of the correct intents
-std_dev = np.std([vec1, vec2, vec3], axis=0) #shape: (200,)
-
-#Distance between Centroid of correct intents and Wrong intent
-centroid = np.mean([vec1, vec2, vec3], axis=0)
-print('Distance between Centroid and wrong intent: ', np.linalg.norm(vec4-centroid))
-print('Standard deviation of the vectors: ', np.linalg.norm(std_dev))
+input_path = 'path_to_your_file.csv'
+main(input_path)
