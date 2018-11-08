@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Nov  6 14:51:28 2018
-
-@author: Stagiaire-3
-"""
 import numpy as np
 import pandas as pd
 import unicodedata
