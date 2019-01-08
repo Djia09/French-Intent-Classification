@@ -2,16 +2,16 @@
 Here is an embedding method to classify intents which aims at improving chatbot responses. 
 
 ## Aim of the project
-Dialogflow is a platform where we can create a chatbot by feeding it with sentences annotated with an intent. 
+DialogFlow is a platform where we can create a chatbot by feeding it with sentences annotated with an intent. 
 
 Example: "I want to eat an apple." and "I would like some chocolate." will be in "Food" intent, and an automatic response would be "Here is the list of available foods." 
 
-Dialogflow uses a hybrid model (not publicly released) which combines Rule-Based (matching with regular expressions) and Machine Learning. 
+DialogFlow uses a hybrid model (not publicly released) which combines Rule-Based (matching with regular expressions) and Machine Learning. 
 
-Our main goal is to use Word Embedding to obtain an only Machine Learning model and to compare the results with Dialogflow's. 
+Our main goal is to use Word Embedding to obtain an only Machine Learning model and to compare the results with DialogFlow's. 
 
 ## Data
-For privacy reasons, we cannot share the dataset we used. However, we will show some results to compare a Dialogflow chatbot and our model.
+For privacy reasons, we cannot share the dataset we used. However, we will show some results to compare a DialogFlow chatbot and our model.
 
 ## Getting started
 The sentences are in French. In order to classify them, we use a French pre-trained Word2Vec model available on http://fauconnier.github.io/, then we used an SVM Classifier. 
@@ -59,4 +59,8 @@ Predicted intent for sent3: VETEMENT_NETTOYAGE
 Predicted intent for sent4: ACTIVITES_ENFANTS
 ```
 
-Dialogflow predicted the label 'VETEMENT_NETTOYAGE' for the 4 of them, while the last one should be ACTIVITES_ENFANTS. 
+DialogFlow predicted the label 'VETEMENT_NETTOYAGE' for the 4 of them, while the last one should be ACTIVITES_ENFANTS.
+
+Indeed, DialogFlow's model drawback is to match the structure of the training sentences. In the training sentences, we observe that in the class VETEMENT_NETTOYAGE, several sentences begin with "J'ai besoin de...". Hence, each sentence beginning with "J'ai besoin de..." will be classified in VETEMENT_NETTOYAGE category. 
+
+Our model offers to train a model by extracting sentences' semantic, which DialogFlow model lacks.
